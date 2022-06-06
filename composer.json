@@ -1,0 +1,25 @@
+{
+    "name": "brightmoon/framework",
+    "description": "BrightMoon Framework",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Trinh Tran Phuong Nam",
+            "email": "ttpn18121996@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "nesbot/carbon": "^2.41",
+        "vlucas/phpdotenv": "^5.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "BrightMoon\\": "src/BrightMoon/",
+            "BrightMoonFaker\\": "src/BrightMoonFaker/"
+        },
+        "files": [
+            "src/BrightMoon/Support/helpers.php"
+        ]
+    }
+}

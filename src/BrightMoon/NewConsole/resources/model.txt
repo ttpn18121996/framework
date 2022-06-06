@@ -1,0 +1,10 @@
+<?php
+
+namespace {{ NAMESPACE }};
+
+use BrightMoon\Model;
+
+class {{ CLASS }} extends Model
+{
+    #code ...
+}

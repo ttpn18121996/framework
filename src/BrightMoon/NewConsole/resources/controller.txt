@@ -1,0 +1,85 @@
+<?php
+
+namespace {{ NAMESPACE }};
+
+use BrightMoon\Controller;
+use BrightMoon\Http\Request;
+use BrightMoon\Http\Response;
+
+class {{ CLASS }} extends Controller
+{
+    /**
+     * Hiển thị danh sách.
+     *
+     * @return \BrightMoon\Http\Response
+     */
+    public function index()
+    {
+        # code...
+    }
+
+    /**
+     * Hiển thị chi tiết.
+     *
+     * @param  int  $id
+     * @return \BrightMoon\Http\Response
+     */
+    public function show($id)
+    {
+        # code...
+    }
+
+    /**
+     * Hiển thị trang thêm.
+     *
+     * @return \BrightMoon\Http\Response
+     */
+    public function create()
+    {
+        # code...
+    }
+
+    /**
+     * Xử lý thêm.
+     *
+     * @param  \BrightMoon\Http\Request  $request
+     * @return \BrightMoon\Http\Response
+     */
+    public function store(Request $request)
+    {
+        # code...
+    }
+
+    /**
+     * Hiển thị thông tin chỉnh sửa.
+     *
+     * @param  int  $id
+     * @return \BrightMoon\Http\Response
+     */
+    public function edit($id)
+    {
+        # code...
+    }
+
+    /**
+     * Xử lý cập nhật.
+     *
+     * @param  \BrightMoon\Http\Request  $request
+     * @return \BrightMoon\Http\Response
+     */
+    public function update(Request $request)
+    {
+        # code...
+    }
+
+    /**
+     * Xử lý xóa.
+     *
+     * @param  int  $id
+     * @return \BrightMoon\Http\Response
+     */
+    public function destroy($id)
+    {
+        # code...
+    }
+}
