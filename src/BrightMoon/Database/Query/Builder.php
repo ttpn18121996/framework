@@ -145,6 +145,7 @@ class Builder
         'rlike', 'not rlike', 'regexp', 'not regexp',
         '~', '~*', '!~', '!~*', 'similar to',
         'not similar to', 'not ilike', '~~*', '!~~*',
+        'in', 'not in'
     ];
 
     protected $processor;
@@ -606,6 +607,11 @@ class Builder
         return $this->join($table, $first, $operator, $second, 'RIGHT');
     }
 
+    /**
+     * Lấy toàn bộ dữ liệu.
+     *
+     * @return \BrightMoon\Support\Collection
+     */
     public function all()
     {
         return $this->get(['*']);
@@ -615,7 +621,7 @@ class Builder
      * Lấy danh sách các model.
      *
      * @param  array  $columns
-     * @return mixed
+     * @return \BrightMoon\Support\Collection
      */
     public function get(array $columns = [])
     {

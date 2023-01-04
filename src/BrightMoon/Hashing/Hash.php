@@ -2,6 +2,8 @@
 
 namespace BrightMoon\Hashing;
 
+use BrightMoon\Support\Arr;
+
 class Hash
 {
     /**
@@ -9,19 +11,23 @@ class Hash
      *
      * @var array
      */
-    private $config;
+    protected $config;
 
     /**
      * Định nghĩa thuật toán sử dụng để băm.
      *
      * @var string
      */
-    private $driver;
+    protected $driver;
+
+    protected static $drivers = [
+        'bcrypt' => BcryptHasher::class,
+    ];
 
     public function __construct()
     {
         $this->config = config('hashing');
-        $this->driver = $this->config['driver'];
+        $this->driver = Arr::get($this->config, 'driver');
     }
 
     /**
@@ -31,13 +37,18 @@ class Hash
      */
     public function getHasher()
     {
-        switch ($this->driver) {
-            case 'bcrypt':
-                return new BcryptHasher($this->config['bcrypt']);
-            
-            default:
-                return new BcryptHasher($this->config['bcrypt']);
-        }
+        return app(Arr::get(static::$drivers, $this->driver), ['options' => Arr::get($this->config, $this->driver)]);
+    }
+
+    /**
+     * Thêm vào các Hasher khác.
+     *
+     * @param  array  $hasheres
+     * @return void
+     */
+    public static function pushHasher(array $hasheres)
+    {
+        static::$drivers = array_merge(static::$drivers, $hasheres);
     }
 
     /**
