@@ -125,6 +125,7 @@ abstract class Connection
     {
         return app(QueryBuilder::class, [
             'connection' => $this,
+            'processor' => app(\BrightMoon\Database\Query\Processors\Processor::class)->getProcessor(),
         ])->{$method}(...$parameters);
     }
 }

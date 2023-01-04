@@ -153,7 +153,7 @@ class Dumper
         $rs .= '<span class="dumper-'.($type != 'array' ? 'value-obj' : 'type').' pointer">'.$type.
             ($type == 'array' ? '('.$length.')' : '&nbsp;{...}[#'.$objectId.']').'&nbsp;'.
             ($length > 0
-                ? '<span class="dumper-toggle" data-char="'.($level == 0 ? '&#9207;' : '&#9204;').'"></span>'
+                ? '<span class="dumper-toggle" data-rotate="'.($level == 0 ? '-90' : '0').'" style="transform: rotate('.($level == 0 ? '-90' : '0').'deg);"></span>'
                 : '').'</span>
             <div class="dumper-value-arr-obj '.($level == 0 ? '' : 'dnone').'">';
         if ($length) {
@@ -224,7 +224,10 @@ class Dumper
             .mb-2{margin-bottom: 0.5rem;}.mt-2{margin-top: 0.5rem;}.dumper-type{color: #e87c08;user-select: none;}
             .dumper-value-string{color: #15dd15;}.dumper-value-integer{color: #007bff;}.dumper-value-obj{color: #ffc107;}
             .dumper-value-double{color: #ff11ff;}.dumper-value-boolean{color: #dc3545;}.dumper-key{color: #fefefe;}
-            .dumper-toggle{color:#fefefe;user-select: none;}.dumper-toggle::before{content: attr(data-char);}.dumper-value-arr-obj{transition: all 0.5s ease-in-out;}
+            .dumper-toggle{user-select: none;width: 1px;height: 1px;display: inline-block;transition: all 0.25s;
+                border-top:5px solid transparent;border-left:5px solid transparent;
+                border-bottom:5px solid transparent;border-right:5px solid #fefefe;}
+            .dumper-value-arr-obj{transition: all 0.5s ease-in-out;}
             </style>';
         }
 
@@ -234,7 +237,8 @@ class Dumper
             .mb-2{margin-bottom: 0.5rem;}.mt-2{margin-top: 0.5rem;}.dumper-type{color: #e87c08;user-select: none;}
             .dumper-value-string{color: #28a745;}.dumper-value-integer{color: #007bff;}.dumper-value-obj{color: #e6b218;}
             .dumper-value-double{color: #ff11ff;}.dumper-value-boolean{color: #dc3545;}.dumper-key{color: #0e0e0e;}
-            .dumper-toggle{color:#0e0e0e;user-select: none;}.dumper-toggle::before{content: attr(data-char);}.dumper-value-arr-obj{transition: all 0.5s ease-in-out;}
+            .dumper-toggle{user-select: none;border-top:5px solid transparent;border-left:5px solid transparent;border-bottom:5px solid transparent;border-right:5px solid #0e0e0e;width: 1px;height: 1px;display: inline-block;}
+            .dumper-value-arr-obj{transition: all 0.5s ease-in-out;}
             </style>';
     }
 
@@ -247,22 +251,27 @@ class Dumper
     {
         // Arial, Helvetica, sans-serif
         return '<script async defer>
+            function toggleRotate(child, parent) {
+                let rotate;
+                const dumperValue = parent.parentNode.querySelector(".dumper-value-arr-obj");
+                if (child.dataset.rotate === "0") {
+                    rotate = "-90";
+                    child.dataset.rotate = rotate;
+                    dumperValue.classList.remove("dnone");
+                } else {
+                    rotate = "0";
+                    child.dataset.rotate = rotate;
+                    dumperValue.classList.add("dnone");
+                }
+                child.style.transform = "rotate(" + rotate + "deg)";
+            }
             document.addEventListener("DOMContentLoaded", function () {
                 const pointerElem = document.querySelectorAll(".pointer");
                 pointerElem.forEach(function (elem) {
                     elem.addEventListener("click", function () {
                         const child = this.querySelector(".dumper-toggle");
                         if (child) {
-                            const input = child.dataset.char;
-                            const dumperValue = this.parentNode.querySelector(".dumper-value-arr-obj");
-                            const output = input.charCodeAt(0);
-                            if (output == "9207") {
-                                this.children[0].dataset.char = String.fromCharCode(9204);
-                                dumperValue.classList.add("dnone");
-                            } else {
-                                this.children[0].dataset.char = String.fromCharCode(9207);
-                                dumperValue.classList.remove("dnone");
-                            }
+                            toggleRotate(child, this);
                         }
                     });
                 });

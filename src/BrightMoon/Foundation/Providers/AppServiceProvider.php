@@ -21,9 +21,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind(
-            \BrightMoon\Database\Query\Processors\Processor::class,
-            fn ($app) => $app->make(\BrightMoon\Database\Query\Processors\Processor::class)->getProcessor()
-        );
+        //
     }
 }
