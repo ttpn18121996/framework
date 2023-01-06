@@ -2,6 +2,7 @@
 
 namespace BrightMoon\Foundation;
 
+use BrightMoon\Support\Arr;
 use BrightMoon\Support\Facades\Route;
 use BrightMoon\Foundation\Providers\AppServiceProvider;
 use BrightMoon\Foundation\Providers\RouteServiceProvider;
@@ -16,6 +17,11 @@ class Application extends Container
      * @var \BrightMoon\Foundation\Providers\ServiceProvider[]
      */
     protected $serviceProviders = [];
+
+    /**
+     * @var string
+     */
+    protected $namespace;
 
     /**
      * Khởi tạo đối tượng Application.
@@ -173,5 +179,24 @@ class Application extends Container
     public function basePath($path = '')
     {
         return $this->basePath.($path ? DIRECTORY_SEPARATOR.$path : $path);
+    }
+
+    public function getNamespace()
+    {
+        if (! is_null($this->namespace)) {
+            return $this->namespace;
+        }
+
+        $composer = json_decode(file_get_contents($this->basePath('composer.json')), true);
+
+        foreach (Arr::get($composer, 'autoload.psr-4', []) as $namespace => $path) {
+            foreach ((array) $path as $pathChoice) {
+                if (realpath($this->basePath('app')) === realpath($this->basePath($pathChoice))) {
+                    return $this->namespace = $namespace;
+                }
+            }
+        }
+
+        throw new RuntimeException('Không thể lấy được namespace của app.');
     }
 }

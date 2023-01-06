@@ -2,6 +2,7 @@
 
 namespace BrightMoon\Database\Query;
 
+use BrightMoon\Contracts\ArrayAccess;
 use BrightMoon\Contracts\Connection;
 use BrightMoon\Database\Query\Processors\Processor;
 use BrightMoon\Model;
@@ -810,10 +811,10 @@ class Builder
     /**
      * Thêm một tài nguyên vào cơ sở dữ liệu.
      *
-     * @param  array  $data
+     * @param  array|ArrayAccess  $data
      * @return bool
      */
-    public function insert(array $data)
+    public function insert(array|ArrayAccess $data)
     {
         if (empty($data)) {
             return true;
@@ -825,7 +826,7 @@ class Builder
             foreach ($data as $key => $value) {
                 ksort($value);
 
-                $data[$key] = $value;
+                $data[$key] = $value instanceof ArrayAccess ? $value->toArray() : $value;
             }
         }
 

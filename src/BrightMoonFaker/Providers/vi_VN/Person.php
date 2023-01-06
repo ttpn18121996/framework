@@ -12,8 +12,9 @@ class Person extends BasePerson
      * @var string[]
      */
     protected $surnames = [
-        'Bùi', 'Dương', 'Đào', 'Đặng', 'Đoàn', 'Đỗ', 'Hoàng', 'Hồ', 'Huỳnh', 'Lại', 'Lê', 'Lưu', 'Lý', 'Mạc', 'Mạch',
-        'Mai', 'Ngô', 'Nguyễn', 'Phạm', 'Phan', 'Phùng', 'Tăng', 'Thái', 'Trần', 'Trịnh', 'Trương', 'Võ', 'Vũ', 'Vương',
+        'Bùi', 'Châu', 'Chương', 'Dương', 'Đào', 'Đặng', 'Đoàn', 'Đỗ', 'Hoàng', 'Hồ', 'Huỳnh', 'Hứa', 'Khổng', 'Kiều',
+        'Lại', 'Lê', 'Lữ', 'Lương', 'Lưu', 'Lý', 'Mạc', 'Mạch', 'Mai', 'Ngô', 'Nguyễn', 'Phạm', 'Phan', 'Phùng', 'Tăng',
+        'Thái', 'Trần', 'Triệu', 'Trịnh', 'Trương', 'Võ', 'Vũ', 'Vương',
     ];
 
     /**
@@ -33,9 +34,9 @@ class Person extends BasePerson
         'Minh',
         'Nam', 'Nghĩa', 'Ngọc',
         'Phát', 'Phong', 'Phú', 'Phước', 'Phương',
-        'Quân',
+        'Quân', 'Quốc',
         'Sang', 'Sinh', 'Sơn',
-        'Tài', 'Tâm', 'Tân', 'Toàn', 'Trọng', 'Trung', 'Trường', 'Tuấn', 'Tùng',
+        'Tài', 'Tâm', 'Tân', 'Tấn', 'Toàn', 'Thiện', 'Trí', 'Trọng', 'Trung', 'Trường', 'Tuấn', 'Tùng',
         'Viễn', 'Vinh', 'Vũ', 'Vương',
     ];
 
@@ -47,18 +48,18 @@ class Person extends BasePerson
     protected $nameFemales = [
         'An', 'Anh',
         'Châu', 'Cúc',
-        'Dung', 'Duyên',
+        'Diễm', 'Dung', 'Duyên',
         'Đào',
-        'Giang',
+        'Giang', 'Giàu',
         'Hà', 'Hoa', 'Hồng', 'Huệ', 'Hương', 'Hường',
         'Khánh',
-        'Lan', 'Liên', 'Linh', 'Loan',
+        'Lan', 'Liên', 'Liễu', 'Linh', 'Loan',
         'Mai', 'My', 'Minh',
         'Nga', 'Ngân', 'Ngọc', 'Nguyệt', 'Nguyên', 'Nhi', 'Nhung', 'Như',
         'Oanh',
         'Phương', 'Phượng',
         'Quyên', 'Quỳnh',
-        'Thanh', 'Thảo', 'Thuý', 'Thuỳ', 'Tiên', 'Trang',
+        'Thanh', 'Thảo', 'Thuý', 'Thuỳ', 'Thủy', 'Tiên', 'Tiền', 'Trang',
         'Uyên',
         'Vân', 'Vy',
         'Xuyến',
@@ -71,7 +72,7 @@ class Person extends BasePerson
      * @var string[]
      */
     protected $middleNameMales = [
-        'Anh', 'Minh', 'Phương', 'Văn', 'Xuân',
+        'Anh', 'Minh', 'Phương', 'Quốc', 'Thành', 'Văn', 'Xuân',
     ];
 
     /**
@@ -80,6 +81,6 @@ class Person extends BasePerson
      * @var string[]
      */
     protected $middleNameFemales = [
-        'Kim', 'Mai', 'Ngọc', 'Phương', 'Thị', 'Thanh', 'Xuân',
+        'Kim', 'Mai', 'Minh', 'Ngọc', 'Phương', 'Thị', 'Thanh', 'Xuân',
     ];
 }
