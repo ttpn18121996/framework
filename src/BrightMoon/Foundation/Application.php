@@ -3,13 +3,12 @@
 namespace BrightMoon\Foundation;
 
 use BrightMoon\Support\Arr;
-use BrightMoon\Support\Facades\Route;
 use BrightMoon\Foundation\Providers\AppServiceProvider;
 use BrightMoon\Foundation\Providers\RouteServiceProvider;
 
 class Application extends Container
 {
-    const VERSION = '1.0.1';
+    public const VERSION = '1.1.1';
 
     protected $basePath;
 
@@ -38,6 +37,16 @@ class Application extends Container
         $this->registerBaseBindings();
         $this->registerBaseServiceProviders();
         $this->registerCoreContainerAliases();
+    }
+
+    /**
+     * Lấy phiên bản hiện tại của framework.
+     *
+     * @return string
+     */
+    public function version()
+    {
+        return static::VERSION;
     }
 
     /**
