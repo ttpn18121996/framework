@@ -20,6 +20,8 @@ class Collection implements ArrayAccess, Arrayable, Jsonable, IteratorAggregate,
      */
     protected $items = [];
 
+    protected $position = 0;
+
     /**
      * Khởi tạo đối tượng Collection.
      *

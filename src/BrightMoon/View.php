@@ -44,6 +44,13 @@ class View
     protected $configs;
 
     /**
+     * Tên section hiện tại.
+     *
+     * @var string
+     */
+    protected $currentSection;
+
+    /**
      * Khởi tạo đối tượng xử lý view.
      *
      * @return void
@@ -119,13 +126,13 @@ class View
         }
 
         ob_start();
-        $temp = include $pathView.'.php';
+        include $pathView.'.php';
 
         if (is_null($this->layout)) {
             $this->viewContent['no_layout'] = ob_get_clean();
         }
 
-        ob_end_clean();
+        ob_get_length() && ob_end_clean();
     }
 
     /**
@@ -142,6 +149,8 @@ class View
         } else {
             ob_start();
         }
+
+        $this->currentSection = $key;
     }
 
     /**
@@ -150,9 +159,9 @@ class View
      * @param string $key
      * @return void
      */
-    public function endSection($key)
+    public function endSection()
     {
-        $this->viewContent[$key] = ob_get_clean();
+        $this->viewContent[$this->currentSection] = ob_get_clean();
     }
 
     /**

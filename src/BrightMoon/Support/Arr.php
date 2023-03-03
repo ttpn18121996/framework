@@ -124,7 +124,7 @@ class Arr
      */
     public static function except(array $array, $keys)
     {
-        if (is_string($key)) {
+        if (is_string($keys)) {
             unset($array[$keys]);
 
             return $array;

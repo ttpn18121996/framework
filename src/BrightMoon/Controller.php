@@ -20,7 +20,7 @@ abstract class Controller
      * @param array $data
      * @return \BrightMoon\Support\Facades\View
      */
-    public function view($data = [])
+    public function view(array $data = [])
     {
         $folderName = Str::of(class_basename(get_class($this)))->lower()->replace('controller', '');
         $fileName = debug_backtrace()[1]['function'];

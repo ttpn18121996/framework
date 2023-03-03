@@ -108,7 +108,7 @@ class Request
         }
 
         if (isset($this->server['HTTP_CACHE_CONTROL'])) {
-            if (strpos('=', $this->server['HTTP_CACHE_CONTROL']) !== false) {
+            if (str_contains($this->server['HTTP_CACHE_CONTROL'], '=')) {
                 $this->headers['cacheControl'] = [
                     explode(
                         '=',
