@@ -171,6 +171,7 @@ class Router
     /**
      * Thực hiện điều hướng.
      *
+     * @param  \BrightMoon\Http\Request  $request
      * @return mixed
      */
     public function run(Request $request)

@@ -4,6 +4,7 @@ namespace BrightMoon\Http;
 
 use BrightMoon\Support\Facades\Route;
 use BrightMoon\Support\Str;
+use InvalidArgumentException;
 
 class Response
 {
@@ -155,16 +156,36 @@ class Response
     public $headers = [];
 
     protected $data;
-    protected $request;
+
+    protected $statusCode;
+
+    protected $statusText;
 
     protected $action = 'return';
 
-    public function __construct(Request $request, $data)
+    public function __construct($data = '', $status = 200, $headers = [])
     {
-        $this->request = $request;
         $this->data = $data;
+        $this->setStatusCode($status);
+        $this->headers = $headers;
     }
 
+    public function setStatusCode(int $code, string $text = '')
+    {
+        $this->statusCode = $code;
+
+        if ($code < 100 || $code >= 600) {
+            throw new InvalidArgumentException(sprintf('HTTP status code không hợp lệ.'));
+        }
+
+        $this->statusText = static::$statusTexts[$code] ?? 'Unknown status';
+    }
+
+    /**
+     * Trả kết quả về cho client.
+     *
+     * @return void
+     */
     public function send()
     {
         if (! empty($this->headers)) {

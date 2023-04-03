@@ -74,6 +74,11 @@ class Route
      */
     public $prefix = '';
 
+    /**
+     * Các param đã được bind với route.
+     *
+     * @var array
+     */
     private $boundParameters = [];
 
     /**
@@ -193,6 +198,13 @@ class Route
         return $this;
     }
 
+    /**
+     * Bind các tham số cho route, khi nhận được key tương ứng sẽ tự động resolve giá trị.
+     *
+     * @param  string  $key
+     * @param  mixed  $value
+     * @return $this
+     */
     public function bind($key, $value)
     {
         $this->boundParameters[$key] = $value;
