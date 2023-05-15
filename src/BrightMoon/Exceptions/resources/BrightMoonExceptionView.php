@@ -77,13 +77,13 @@
                                     } else {
                                         $className = 'line';
 
-                                        if (preg_match('/\/\*\*|\*[\s\n]+|\/\//', $val['content'])) {
+                                        if (preg_match('/\/\*\*|\*[\s\n]+|\/\/|\*\//', $val['content'])) {
                                             $className .= ' line-comment';
                                         }
 
-                                        $codeContent .= '<div class="' . $className . '"><span class="line-number">'
-                                        . $val['line'] . ':</span> <span class="line-code">'
-                                        . $val['content'] . '</span></div>';
+                                        $codeContent .= '<div class="'.$className.'"><span class="line-number">'
+                                        .$val['line'].':</span> <span class="line-code">'
+                                        .$val['content'].'</span></div>';
                                     }
                                 }
                                 $codeContent = str_replace('<?php', '&lt;&quest;php', $codeContent);
@@ -125,7 +125,7 @@
                             <?php endif ?>
                             <?php if (! empty($request->cookie())) : ?>
                                 <li>
-                                    <a href="#cokkies">Cookies</a>
+                                    <a href="#cookies">Cookies</a>
                                 </li>
                             <?php endif ?>
                         </ul>
@@ -142,6 +142,7 @@
                             </li>
                         </ul>
                     </div>
+
                     <div class="col col-9">
                         <div class="block-items">
                             <h1>Request</h1>
@@ -183,7 +184,7 @@
                             <?php endif ?>
                             <?php if (! empty($request->cookie())) : ?>
                                 <div class="item">
-                                    <h2 id="query">Cookies</h2>
+                                    <h2 id="cookies">Cookies</h2>
                                     <?php foreach ($request->cookie() as $key => $value) : ?>
                                         <div class="group-item">
                                             <div class="item-key col-3"><?=$key?></div>
@@ -195,10 +196,22 @@
                                 </div>
                             <?php endif ?>
                         </div>
+
+                        <div class="block-items">
+                            <h1>App</h1>
+                            <div class="item">
+                                <h2 id="routing">Routing</h2>
+                                <div class="group-item">
+                                    <div class="item-key col-3">Route name</div>
+                                    <div class="item-value col-9"><?=$currentRoute->getName()?></div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="block-items">
                             <h1>Context</h1>
                             <div class="item">
-                                <h2 id="query">Information</h2>
+                                <h2 id="information">Information</h2>
                                 <div class="group-item">
                                     <div class="item-key col-3">PHP Verstion</div>
                                     <div class="item-value col-9"><?=phpversion()?></div>

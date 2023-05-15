@@ -5,6 +5,7 @@ namespace BrightMoon\Http;
 use BrightMoon\Support\Facades\Route;
 use BrightMoon\Support\Str;
 use InvalidArgumentException;
+use stdClass;
 
 class Response
 {
@@ -157,14 +158,17 @@ class Response
 
     protected $data;
 
+    protected $request;
+
     protected $statusCode;
 
     protected $statusText;
 
     protected $action = 'return';
 
-    public function __construct($data = '', $status = 200, $headers = [])
+    public function __construct(Request $request, $data = '', $status = 200, $headers = [])
     {
+        $this->request = $request;
         $this->data = $data;
         $this->setStatusCode($status);
         $this->headers = $headers;
@@ -188,6 +192,8 @@ class Response
      */
     public function send()
     {
+        $this->handleSessionId();
+
         if (! empty($this->headers)) {
             foreach ($this->headers as $header) {
                 header($header);
@@ -195,6 +201,22 @@ class Response
         }
 
         echo $this->data;
+    }
+
+    public function handleSessionId()
+    {
+        $sessionId = $this->request->cookie('brightmoon_session', Str::random(32));
+        $sessionFilePath = base_path('storage/framework/session/'.$sessionId);
+
+        if (! file_exists($sessionFilePath)) {
+            $stream = fopen($sessionFilePath, 'w');
+            $csrfToken = Str::random(32);
+            fputs($stream, serialize(['_csrf_token' => $csrfToken]));
+            fclose($stream);
+
+            $this->header('Set-Cookie', "brightmoon_session={$sessionId}; Max-Age=3600");
+            $this->header('Set-Cookie', "brightmoon_csrf={$csrfToken}; Max-Age=3600");
+        }
     }
 
     /**

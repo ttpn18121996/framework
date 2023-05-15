@@ -201,7 +201,13 @@ class Router
             }
         }
 
-        $this->handleRouteDefault($found);
+        $callbackInfo = $this->handleRouteDefault($found);
+
+        if (is_array($callbackInfo)) {
+            $controller = $callbackInfo['controller'];
+            $action = $callbackInfo['action'];
+            $parameters = $callbackInfo['parameters'];
+        }
 
         app(Response::class, ['data' => app()->action([$controller, $action], $parameters)])->send();
     }
@@ -232,19 +238,17 @@ class Router
         $reflection = new ReflectionFunction($callback);
         $new_parameters = [];
 
-        if (! empty($args)) {
-            foreach ($reflection->getParameters() as $parameter) {
-                if (! is_null($parameter->getType())) {
-                    $new_parameters[] = app($parameter->getType()->getName());
-                } elseif (isset($args[$parameter->name])) {
-                    $new_parameters[] = $args[$parameter->name];
-                }
+        foreach ($reflection->getParameters() as $parameter) {
+            if (! is_null($parameter->getType())) {
+                $new_parameters[] = app($parameter->getType()->getName());
+            } elseif (isset($args[$parameter->name])) {
+                $new_parameters[] = $args[$parameter->name];
             }
         }
 
         $parameters = $new_parameters;
 
-        echo call_user_func_array($callback, $parameters);
+        app(Response::class, ['data' => call_user_func_array($callback, $parameters)])->send();
     }
 
     /**
@@ -261,13 +265,14 @@ class Router
             if ($this->routeDefault) {
                 $parts = explode('/', $_SERVER['REQUEST_URI']);
                 $parts = array_filter($parts);
-                $this->controller = ($c = array_shift($parts))
-                    ? app(Str::of($c)->studly()->prepend("App\\Controllers\\")->append('Controller')->__toString())
-                    : '';
-                $this->action = ($c = array_shift($parts)) ? $c : 'index';
-                $this->params = (isset($parts[0])) ? $parts : [];
 
-                return;
+                return [
+                    'controller' => ($c = array_shift($parts))
+                        ? app(Str::of($c)->studly()->prepend("App\\Controllers\\")->append('Controller')->__toString())
+                        : '',
+                    'action' => ($c = array_shift($parts)) ? $c : 'index',
+                    'params' => (isset($parts[0])) ? $parts : [],
+                ];
             }
 
             throw new BrightMoonRouteException('Yêu cầu không hợp lệ. Kiểm tra lại đường dẫn hoặc phương thức.');
@@ -341,13 +346,32 @@ class Router
      */
     public function getUriByName($name)
     {
-        foreach ($this->routes as $method) {
+        return $this->getRouteByName($name)->getUri();
+    }
+
+    /**
+     * Lấy route hiện tại bằng tên.
+     *
+     * @param  string|null  $name
+     * @return \BrightMoon\Routing\Route
+     */
+    public function getRouteByName(?string $name = null)
+    {
+        $currentRoute = null;
+
+        foreach ($this->routes as $method => $route) {
             foreach ($this->routes[$method] as $route) {
-                if ($name == $route->getName()) {
-                    return $route->getUri();
+                if ($name && $name == $route->getName()) {
+                    return $route;
+                } elseif ($this->getBaseUri() == $route->getUri()) {
+                    return $route;
                 }
+
+                $currentRoute = $route;
             }
         }
+
+        return $currentRoute;
     }
 
     /**

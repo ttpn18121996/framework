@@ -2,6 +2,7 @@
 
 namespace BrightMoon\Exceptions;
 
+use BrightMoon\Support\Facades\Route;
 use Exception;
 use Throwable;
 
@@ -41,6 +42,7 @@ class Handler
             $contentFile = $this->readFileException($file, $line);
             $linkToEditor = $this->getLinkToEditor($file, $line);
             $request = request();
+            $currentRoute = Route::getRouteByName();
             include 'resources/BrightMoonExceptionView.php';
             die();
         }
@@ -58,11 +60,60 @@ class Handler
         $result = [];
         foreach (file($filePath) as $lineCode => $contentCode) {
             if ($lineCode + 1 > $line - 15 && $lineCode + 1 < $line + 15) {
-                $result[] = ['line' => $lineCode + 1, 'content' => $contentCode];
+                $result[] = ['line' => $lineCode + 1, 'content' => $this->beautifyContent($contentCode)];
             }
         }
 
         return $result;
+    }
+
+    private function beautifyContent($content)
+    {
+        if (! empty($content) && ! preg_match('/\/\*\*|\*[\s\n]+|\/\/|\*\//', $content)) {
+            $content = preg_replace(
+                '/(protected|public|private|const|class|extends|use|namespace) ([A-Z]+[a-zA-Z0-9\\\_]+)*/',
+                '<span class="hightlight-keyword">$1</span> <span class="hightlight-title">$2</span>',
+                $content
+            );
+
+            $content = preg_replace(
+                '/(function) ([a-z0-9\\\_]+)/i',
+                '<span class="hightlight-keyword">$1</span> <span class="hightlight-name">$2</span>',
+                $content
+            );
+            
+            $content = preg_replace(
+                '/([A-Z]+[a-zA-Z0-9\\\_]+) (\$[a-zA-Z0-9\\\_]+)/',
+                '<span class="hightlight-title">$1</span> $2',
+                $content
+            );
+            
+            $content = preg_replace(
+                '/(return|throw) /',
+                '<span class="hightlight-result">$1</span> ',
+                $content
+            );
+            
+            $content = preg_replace(
+                '/(new) ([a-zA-Z0-9\$\\\_]+)/',
+                '<span class="hightlight-create">$1</span> <span class="hightlight-title">$2</span>',
+                $content
+            );
+            
+            $content = preg_replace(
+                '/([a-zA-Z0-9\$\\\_]+)\(([^\(^\)]*)\)/',
+                '<span class="hightlight-name">$1</span>($2)',
+                $content
+            );
+            
+            $content = preg_replace(
+                '/([A-Z\\]+[a-zA-Z0-9\\\_]+)::([a-zA-Z0-9_\$]+)/i',
+                '<span class="hightlight-title">$1</span>::<span class="hightlight-keyword">$2</span>',
+                $content
+            );
+        }
+
+        return $content;
     }
 
     private function getLinkToEditor($file, $line)

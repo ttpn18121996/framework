@@ -39,7 +39,7 @@ class RouteServiceProvider extends ServiceProvider
         $routesRegistered = Route::getListRouteRegisted();
 
         foreach ($routesRegistered as $route) {
-            if (!in_array($route, ['.', '..'])) {
+            if (! in_array($route, ['.', '..'])) {
                 require $route;
             }
         }

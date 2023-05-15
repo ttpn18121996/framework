@@ -66,6 +66,7 @@ class Application extends Container
             'db' => \BrightMoon\Database\DatabaseManager::class,
             'request' => \BrightMoon\Http\Request::class,
             'route' => \BrightMoon\Routing\Router::class,
+            'session' => \BrightMoon\Session\SessionManager::class,
             'view' => \BrightMoon\View::class,
         ];
     }

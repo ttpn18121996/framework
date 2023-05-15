@@ -67,6 +67,8 @@ class Request
 
         $this->setDataHeader();
 
+        $this->setSession();
+
         $strRequestInput = urldecode(file_get_contents('php://input'));
         parse_str($strRequestInput, $requestInput);
 
@@ -86,7 +88,7 @@ class Request
             }
         }
 
-        $this->query = queryStringToArray($this->server['QUERY_STRING'] ?? '');
+        $this->query = query_string_to_array($this->server['QUERY_STRING'] ?? '');
     }
 
     private function setDataServer()
@@ -109,19 +111,20 @@ class Request
 
         if (isset($this->server['HTTP_CACHE_CONTROL'])) {
             if (str_contains($this->server['HTTP_CACHE_CONTROL'], '=')) {
+                $httpCacheControl = explode('=', $this->server['HTTP_CACHE_CONTROL']);
+
                 $this->headers['cacheControl'] = [
-                    explode(
-                        '=',
-                        $this->server['HTTP_CACHE_CONTROL']
-                    )[0] => explode(
-                        '=',
-                        $this->server['HTTP_CACHE_CONTROL']
-                    )[1]
+                    $httpCacheControl[0] => $httpCacheControl[1],
                 ];
             } else {
                 $this->headers['cacheControl'] = $this->server['HTTP_CACHE_CONTROL'];
             }
         }
+    }
+
+    public function setSession()
+    {
+        # code...
     }
 
     /**
@@ -190,7 +193,7 @@ class Request
             return $cookies;
         }
 
-        return Arr::get($cookies, $key);
+        return Arr::get($cookies, $key, $default);
     }
 
     /**

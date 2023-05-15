@@ -169,14 +169,14 @@ if (! function_exists('now')) {
     }
 }
 
-if (! function_exists('queryStringToArray')) {
+if (! function_exists('query_string_to_array')) {
     /**
      * Chuyển chuỗi URL hoặc query string sang mảng chứa các tham số.
      *
      * @param  string  $string
      * @return array
      */
-    function queryStringToArray($string = '')
+    function query_string_to_array($string = '')
     {
         if (empty($string)) {
             return [];
