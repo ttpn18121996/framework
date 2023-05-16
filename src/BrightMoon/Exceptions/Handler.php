@@ -81,7 +81,7 @@ class Handler
                 '<span class="hightlight-keyword">$1</span> <span class="hightlight-name">$2</span>',
                 $content
             );
-            
+
             $content = preg_replace(
                 '/([A-Z]+[a-zA-Z0-9\\\_]+) (\$[a-zA-Z0-9\\\_]+)/',
                 '<span class="hightlight-title">$1</span> $2',
@@ -101,14 +101,14 @@ class Handler
             );
             
             $content = preg_replace(
-                '/([a-zA-Z0-9\$\\\_]+)\(([^\(^\)]*)\)/',
-                '<span class="hightlight-name">$1</span>($2)',
+                '/([A-Z]+[a-zA-Z0-9\\\_]+)::([a-zA-Z0-9_\$]+)/i',
+                '<span class="hightlight-title">$1</span>::<span class="hightlight-name">$2</span>',
                 $content
             );
-            
+
             $content = preg_replace(
-                '/([A-Z\\]+[a-zA-Z0-9\\\_]+)::([a-zA-Z0-9_\$]+)/i',
-                '<span class="hightlight-title">$1</span>::<span class="hightlight-keyword">$2</span>',
+                '/([a-zA-Z0-9\$\\\_]+)\(([^\(^\)]*)\)/',
+                '<span class="hightlight-name">$1</span>($2)',
                 $content
             );
         }

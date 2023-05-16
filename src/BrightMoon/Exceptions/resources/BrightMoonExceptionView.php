@@ -62,7 +62,7 @@
                     </div>
                     <div class="col col-8">
                         <div class="code-path">
-                            <a href="<?=$linkToEditor?>">
+                            <a href="<?=$linkToEditor?>" title="Open for editing">
                                 <?=$file?>:<?=$line?>
                             </a>
                         </div>
@@ -201,9 +201,15 @@
                             <h1>App</h1>
                             <div class="item">
                                 <h2 id="routing">Routing</h2>
+
                                 <div class="group-item">
-                                    <div class="item-key col-3">Route name</div>
+                                    <div class="item-key col-3">Name</div>
                                     <div class="item-value col-9"><?=$currentRoute->getName()?></div>
+                                </div>
+
+                                <div class="group-item">
+                                    <div class="item-key col-3">Controller</div>
+                                    <div class="item-value col-9"><?=$currentRoute->getController()?></div>
                                 </div>
                             </div>
                         </div>
@@ -216,14 +222,17 @@
                                     <div class="item-key col-3">PHP Verstion</div>
                                     <div class="item-value col-9"><?=phpversion()?></div>
                                 </div>
+
                                 <div class="group-item">
                                     <div class="item-key col-3">BrightMoon Verstion</div>
                                     <div class="item-value col-9"><?=app()::VERSION?></div>
                                 </div>
+
                                 <div class="group-item">
                                     <div class="item-key col-3">App Environment</div>
                                     <div class="item-value col-9"><?=env('APP_ENV', 'local')?></div>
                                 </div>
+
                                 <div class="group-item">
                                     <div class="item-key col-3">Debug mode</div>
                                     <div class="item-value col-9"><?=env('APP_DEBUG', 'true')?></div>

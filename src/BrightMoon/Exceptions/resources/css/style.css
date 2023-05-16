@@ -130,19 +130,19 @@ header > .content {
 header > .content > .info {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.75rem;
 }
 
 header > .content > .info > .class {
     color: #000;
-    margin-bottom: 1.75rem;
     background-color: var(--color-gray);
-    padding: 1.25rem;
+    padding: .75rem 1.25rem;
     border-radius: 5px;
 }
 
 header > .content > .info > .version {
     text-align: end;
-    margin-bottom: 0.5rem;
     padding: 1.25rem;
 }
 
@@ -257,6 +257,10 @@ ul li:hover {
 
 .code-path a {
     word-wrap: break-word;
+}
+
+.code-path a:hover {
+    text-decoration: underline;
 }
 
 .code-content {

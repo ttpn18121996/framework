@@ -299,7 +299,7 @@ class Route
             return $controllerName;
         }
         
-        return null;
+        return 'Closure';
     }
 
     /**

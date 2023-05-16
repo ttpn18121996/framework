@@ -2,7 +2,6 @@
 
 namespace BrightMoon\Routing;
 
-use BrightMoon\Support\Str;
 use Closure;
 
 class RouteGroup

@@ -191,7 +191,7 @@ class Router
                     $parameters = $route->params;
 
                     if (is_callable($action)) {
-                        return $this->callUserFuncArray($action, $route->params);
+                        return $this->executeRouteCallback($action, $route->params);
                     }
 
                     $found = true;
@@ -233,7 +233,7 @@ class Router
      * @param  array  $args
      * @return void
      */
-    private function callUserFuncArray($callback, array $args)
+    private function executeRouteCallback($callback, array $args)
     {
         $reflection = new ReflectionFunction($callback);
         $new_parameters = [];
