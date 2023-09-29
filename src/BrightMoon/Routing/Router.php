@@ -56,7 +56,7 @@ class Router
      *
      * @param string $uri
      * @param \Closure|array|string|callable $action
-     * @return \BrightMoon\RoutingRoute
+     * @return \BrightMoon\Routing\Route
      */
     public function get($uri, $action)
     {
@@ -68,7 +68,7 @@ class Router
      *
      * @param string $uri
      * @param \Closure|array|string|callable $action
-     * @return \BrightMoon\RoutingRoute
+     * @return \BrightMoon\Routing\Route
      */
     public function post($uri, $action)
     {
@@ -80,7 +80,7 @@ class Router
      *
      * @param string $uri
      * @param \Closure|array|string $action
-     * @return \BrightMoon\RoutingRoute
+     * @return \BrightMoon\Routing\Route
      */
     public function put($uri, $action)
     {
@@ -92,7 +92,7 @@ class Router
      *
      * @param string $uri
      * @param \Closure|array|string $action
-     * @return \BrightMoon\RoutingRoute
+     * @return \BrightMoon\Routing\Route
      */
     public function patch($uri, $action)
     {
@@ -104,7 +104,7 @@ class Router
      *
      * @param string $uri
      * @param \Closure|array|string $action
-     * @return \BrightMoon\RoutingRoute
+     * @return \BrightMoon\Routing\Route
      */
     public function delete($uri, $action)
     {
@@ -116,7 +116,7 @@ class Router
      *
      * @param string $uri
      * @param \Closure|array|string $action
-     * @return \BrightMoon\RoutingRoute
+     * @return \BrightMoon\Routing\Route
      */
     public function options($uri, $action)
     {
@@ -128,7 +128,7 @@ class Router
      *
      * @param string $uri
      * @param \Closure|array|string $action
-     * @return \BrightMoon\RoutingRoute
+     * @return \BrightMoon\Routing\Route
      */
     public function any($uri, $action)
     {
@@ -141,7 +141,7 @@ class Router
      * @param array|string $methods
      * @param string $uri
      * @param \Closure|array|string $action
-     * @return \BrightMoon\RoutingRoute
+     * @return \BrightMoon\Routing\Route
      */
     public function match($methods, $uri, $action)
     {
@@ -154,7 +154,7 @@ class Router
      * @param array|string $methods
      * @param string $uri
      * @param \Closure|array|string $action
-     * @return \BrightMoon\RoutingRoute
+     * @return \BrightMoon\Routing\Route
      */
     public function addRoute($methods, $uri, $action)
     {
