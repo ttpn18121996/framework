@@ -9,9 +9,9 @@ class RouteRegistrar
 {
     public array $middlewares = [];
 
-    public string $namespace = '';
+    public ?string $namespace = null;
 
-    public string $prefix = '';
+    public ?string $prefix = null;
 
     public function __construct(
         protected Router $router,
@@ -29,11 +29,18 @@ class RouteRegistrar
         return $this;
     }
 
+    public function prefix(string $prefix): static
+    {
+        $this->prefix = ($this->prefix ?? '').'/'.ltrim($prefix, '/');
+
+        return $this;
+    }
+
     public function group($callback)
     {
         $options = [
-            'prefix' => $this->prefix,
-            'namespace' => $this->namespace,
+            'prefix' => $this->prefix ?? '',
+            'namespace' => $this->namespace ?? '',
             'middlewares' => $this->middlewares,
         ];
 

@@ -2,9 +2,10 @@
 
 namespace BrightMoon\Routing;
 
+use BrightMoon\Contracts\Support\Arrayable;
 use Closure;
 
-class RouteGroup
+class RouteGroup implements Arrayable
 {
     /**
      * Khởi tạo đối tượng.
@@ -43,7 +44,7 @@ class RouteGroup
      */
     public function prefix(string $prefix = ''): static
     {
-        $this->options['prefix'] = ($this->options['prefix'] ?? '').$prefix;
+        $this->options['prefix'] = ($this->options['prefix'] ?? '').'/'.ltrim($prefix, '/');
 
         return $this;
     }
@@ -76,5 +77,19 @@ class RouteGroup
         $this->options['as'] = ($oldData['as'] ?? '').($newData['as'] ?? '');
 
         return $this;
+    }
+
+    public function toArray(): array
+    {
+        return $this->options;
+    }
+
+    public function __get(string $key)
+    {
+        if (array_key_exists($key, $this->options)) {
+            return $this->options[$key];
+        }
+
+        return null;
     }
 }

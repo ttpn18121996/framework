@@ -240,7 +240,7 @@ class Router
             $this->groupStack[] = $routeGroup;
         } else {
             $lastGroupStack = end($this->groupStack);
-            $this->groupStack[] = $routeGroup->merge($lastGroupStack, $options);
+            $this->groupStack[] = $routeGroup->merge($lastGroupStack->toArray(), $options);
         }
     }
 
@@ -263,7 +263,7 @@ class Router
     /**
      * Lấy route hiện tại bằng tên.
      */
-    public function getRouteByName(?string $name = null): Route
+    public function getRouteByName(?string $name = null): ?Route
     {
         $currentRoute = null;
 

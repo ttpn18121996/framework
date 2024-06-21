@@ -29,12 +29,12 @@ class Route
     /**
      * Controller xử lý yêu cầu.
      */
-    public string $controller;
+    public ?string $controller = null;
 
     /**
      * Tên route.
      */
-    public string $name;
+    public ?string $name = null;
 
     /**
      * Namespace của controller.
@@ -94,16 +94,16 @@ class Route
     /**
      * Cấu hình các thông số cho route.
      */
-    public function configRoute(array $options): void
+    public function configRoute(RouteGroup $routeGroup): void
     {
-        $this->prefix = $options['prefix'] ?? '';
+        $this->prefix = $routeGroup->prefix ?? '';
 
-        if (! empty($options['namespace'])) {
-            $this->namespace($options['namespace']);
+        if (! empty($routeGroup->namespace)) {
+            $this->namespace($routeGroup->namespace);
         }
 
-        if (isset($options['as'])) {
-            $this->name = $options['as'].$this->name;
+        if (isset($routeGroup->as)) {
+            $this->name = $routeGroup->as.$this->name;
         }
     }
 
@@ -126,7 +126,7 @@ class Route
     /**
      * Xử lý action dạng chuỗi.
      */
-    private function handleAction(\Closure|string $action): \Closure|string
+    private function handleAction(\Closure|array|string $action): \Closure|array|string
     {
         if (is_callable($action)) {
             return $action;
@@ -148,7 +148,7 @@ class Route
      */
     public function name(string $name): static
     {
-        $this->name .= $name;
+        $this->name = ($this->name ?? '').$name;
 
         return $this;
     }
