@@ -6,66 +6,75 @@ use Closure;
 
 class RouteGroup
 {
-    protected $options = [
-        'middleware' => [],
-        'namespace' => '',
-        'prefix' => '',
-        'as' => '',
-    ];
-
-    protected $middleware = [];
-    protected $namespace = '';
-    protected $prefix = '';
-    protected $as = '';
-
-    protected $router;
-
     /**
      * Khởi tạo đối tượng.
-     *
-     * @param  \BrightMoon\Routing\Router  $router
-     * @param  array  $options
-     * @return void
      */
-    public function __construct(Router $router, array $options)
-    {
-        $this->router = $router;
-        $this->options = $options;
-
-        foreach ($options as $key => $value) {
-            $this->{$key} = $value;
-        }
+    public function __construct(
+        protected Router $router,
+        protected array $options = [
+            'middlewares' => [],
+            'namespace' => '',
+            'prefix' => '',
+            'as' => '',
+        ],
+    ) {
     }
 
     /**
      * Thực thi callback.
-     *
-     * @param  \Closure  $callback
-     * @return void
      */
-    public function execute(Closure $callback)
+    public function execute(Closure $callback): void
     {
-        $this->router->setRouteGroupOptions($this->options);
         $callback();
-        $this->router->setRouteGroupOptions();
     }
 
     /**
-     * Xử lý gọi phương thức động của route group.
-     *
-     * @param  string  $method
-     * @param  array  $parameters
-     * @return mixed
+     * Thiết lập middlewares.
      */
-    public function __call($method, $parameters)
+    public function middleware(array $middlewares = []): static
     {
-        if (property_exists($this, $method)) {
-            $this->{$method} = $parameters[0];
-            $this->options[$method] = $parameters[0];
+        $this->options['middlewares'] = array_merge($this->options['middlewares'] ?? [], $middlewares);
 
-            return $this;
-        }
+        return $this;
+    }
 
-        throw new BrightMoonRouteException('Phương thức cho RouteGroup không hợp lệ.');
+    /**
+     * Thiết lập prefix.
+     */
+    public function prefix(string $prefix = ''): static
+    {
+        $this->options['prefix'] = ($this->options['prefix'] ?? '').$prefix;
+
+        return $this;
+    }
+    
+    /**
+     * Thiết lập namespace.
+     */
+    public function namespace(string $namespace = ''): static
+    {
+        $this->options['namespace'] = ($this->options['namespace'] ?? '').$namespace;
+
+        return $this;
+    }
+    
+    /**
+     * Thiết lập name.
+     */
+    public function name(string $name = ''): static
+    {
+        $this->options['as'] = ($this->options['as'] ?? '').$name;
+
+        return $this;
+    }
+
+    public function merge(array $oldData, array $newData)
+    {
+        $this->options['middlewares'] = array_merge($oldData['middlewares'] ?? [], $newData['middlewares'] ?? []);
+        $this->options['prefix'] = ($oldData['prefix'] ?? '').($newData['prefix'] ?? '');
+        $this->options['namespace'] = ($oldData['namespace'] ?? '').($newData['namespace'] ?? '');
+        $this->options['as'] = ($oldData['as'] ?? '').($newData['as'] ?? '');
+
+        return $this;
     }
 }

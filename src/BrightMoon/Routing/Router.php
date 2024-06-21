@@ -13,153 +13,101 @@ class Router
 {
     /**
      * Danh sách Route đã đăng ký.
-     *
-     * @var array
      */
-    public $routes = [];
+    public array $routes = [];
 
     /**
      * Các phương thức truyền cho router.
-     *
-     * @var array
      */
-    public $verbs = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', ];
+    public array $verbs = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', ];
 
     /**
      * Thiết lập route mặc định không cần định nghĩa (controller/action/parameter).
-     *
-     * @var bool
      */
-    public $routeDefault = false;
+    public bool $routeDefault = false;
 
     /**
      * Danh sách các routes đăng ký trong provider.
-     *
-     * @var array
      */
-    public $routesRegistered = [];
+    public array $routesRegistered = [];
 
     /**
-     * Danh sách các options của route group.
-     *
-     * @var array
+     * Danh sách các group đã đăng ký.
      */
-    protected $routeGroupOptions = [
-        'middleware' => '',
-        'namespace' => '',
-        'prefix' => '',
-        'as' => '',
-    ];
+    protected array $groupStack = [];
 
     /**
      * Thiết lập route với phương thức GET.
-     *
-     * @param string $uri
-     * @param \Closure|array|string|callable $action
-     * @return \BrightMoon\Routing\Route
      */
-    public function get($uri, $action)
+    public function get(string $uri, \Closure|array|string|callable $action): Route
     {
         return $this->addRoute(['GET', 'HEAD'], $uri, $action);
     }
 
     /**
      * Thiết lập route với phương thức POST.
-     *
-     * @param string $uri
-     * @param \Closure|array|string|callable $action
-     * @return \BrightMoon\Routing\Route
      */
-    public function post($uri, $action)
+    public function post(string $uri, \Closure|array|string|callable $action): Route
     {
         return $this->addRoute(['POST'], $uri, $action);
     }
 
     /**
      * Thiết lập route với phương thức PUT.
-     *
-     * @param string $uri
-     * @param \Closure|array|string $action
-     * @return \BrightMoon\Routing\Route
      */
-    public function put($uri, $action)
+    public function put(string $uri, \Closure|array|string|callable $action): Route
     {
         return $this->addRoute(['PUT'], $uri, $action);
     }
 
     /**
      * Thiết lập route với phương thức PATCH.
-     *
-     * @param string $uri
-     * @param \Closure|array|string $action
-     * @return \BrightMoon\Routing\Route
      */
-    public function patch($uri, $action)
+    public function patch(string $uri, \Closure|array|string|callable $action): Route
     {
         return $this->addRoute(['PATCH'], $uri, $action);
     }
 
     /**
      * Thiết lập route với phương thức DELETE.
-     *
-     * @param string $uri
-     * @param \Closure|array|string $action
-     * @return \BrightMoon\Routing\Route
      */
-    public function delete($uri, $action)
+    public function delete(string $uri, \Closure|array|string|callable $action): Route
     {
         return $this->addRoute(['DELETE'], $uri, $action);
     }
 
     /**
      * Thiết lập route với phương thức OPTIONS.
-     *
-     * @param string $uri
-     * @param \Closure|array|string $action
-     * @return \BrightMoon\Routing\Route
      */
-    public function options($uri, $action)
+    public function options(string $uri, \Closure|array|string|callable $action): Route
     {
         return $this->addRoute(['OPTIONS'], $uri, $action);
     }
 
     /**
      * Thiết lập route với mọi phương thức.
-     *
-     * @param string $uri
-     * @param \Closure|array|string $action
-     * @return \BrightMoon\Routing\Route
      */
-    public function any($uri, $action)
+    public function any(string $uri, \Closure|array|string|callable $action): Route
     {
         return $this->addRoute($this->verbs, $uri, $action);
     }
 
     /**
      * Thiết lập route với phương thức được định nghĩa cụ thể.
-     *
-     * @param array|string $methods
-     * @param string $uri
-     * @param \Closure|array|string $action
-     * @return \BrightMoon\Routing\Route
      */
-    public function match($methods, $uri, $action)
+    public function match(array|string $methods, string $uri, \Closure|array|string|callable $action): Route
     {
         return $this->addRoute((array) $methods, $uri, $action);
     }
 
     /**
      * Thêm route vào danhs sách.
-     *
-     * @param array|string $methods
-     * @param string $uri
-     * @param \Closure|array|string $action
-     * @return \BrightMoon\Routing\Route
      */
-    public function addRoute($methods, $uri, $action)
+    public function addRoute(array|string $methods, string $uri, \Closure|array|string|callable $action): Route
     {
         $route = new Route($methods, $uri, $action);
-        $route->configRoute($this->routeGroupOptions);
+        $routeGroupOptions = end($this->groupStack);
+        $route->configRoute($routeGroupOptions);
         
         foreach ($methods as $method) {
             $this->routes[$method][] = $route;
@@ -204,20 +152,18 @@ class Router
         $callbackInfo = $this->handleRouteDefault($found);
 
         if (is_array($callbackInfo)) {
-            $controller = $callbackInfo['controller'];
-            $action = $callbackInfo['action'];
-            $parameters = $callbackInfo['parameters'];
+            [$controller, $action, $parameters] = $callbackInfo;
         }
+
+        // Execute middleware.
 
         app(Response::class, ['data' => app()->action([$controller, $action], $parameters)])->send();
     }
 
     /**
      * Lấy URI nguyên mẫu.
-     *
-     * @return string
      */
-    public function getBaseUri()
+    public function getBaseUri(): string
     {
         $uriGetParam = $_SERVER['REQUEST_URI'] ?? '/';
         $uriGetParam = $uriGetParam != '/' ? trim($uriGetParam, '/') : '/';
@@ -228,12 +174,8 @@ class Router
 
     /**
      * Thực thi closure.
-     *
-     * @param  \Closure|callable  $callback
-     * @param  array  $args
-     * @return void
      */
-    private function executeRouteCallback($callback, array $args)
+    private function executeRouteCallback(\Closure|callable $callback, array $args): void
     {
         $reflection = new ReflectionFunction($callback);
         $new_parameters = [];
@@ -254,108 +196,74 @@ class Router
     /**
      * Xử lý thiết lập đối route mặc định (controller/action/parameter).
      *
-     * @param  bool  $status
-     * @return void
-     *
      * @throws \BrightMoon\Exceptions\BrightMoonRouteException
      */
-    private function handleRouteDefault($status)
+    private function handleRouteDefault(bool $status): bool|array
     {
-        if (! $status) {
-            if ($this->routeDefault) {
-                $parts = explode('/', $_SERVER['REQUEST_URI']);
-                $parts = array_filter($parts);
+        if ($status) {
+            return true;
+        }
 
-                return [
-                    'controller' => ($c = array_shift($parts))
-                        ? app(Str::of($c)->studly()->prepend("App\\Controllers\\")->append('Controller')->__toString())
-                        : '',
-                    'action' => ($c = array_shift($parts)) ? $c : 'index',
-                    'params' => (isset($parts[0])) ? $parts : [],
-                ];
-            }
-
+        if (! $this->routeDefault) {
             throw new BrightMoonRouteException('Yêu cầu không hợp lệ. Kiểm tra lại đường dẫn hoặc phương thức.');
         }
+
+        $parts = explode('/', $_SERVER['REQUEST_URI']);
+        $parts = array_filter($parts);
+
+        return [
+            'controller' => ($controller = array_shift($parts))
+                ? app(Str::of($controller)->studly()->prepend("App\\Controllers\\")->append('Controller')->toString())
+                : '',
+            'action' => ($action = array_shift($parts)) ? $action : 'index',
+            'params' => (isset($parts[0])) ? $parts : [],
+        ];
     }
 
     /**
      * Nhóm các route có điểm chung lại với nhau.
-     *
-     * @param  array  $config
-     * @param  \Closure  $callback
-     * @return void
      */
-    public function group(array $config, Closure $callback)
+    public function group(array $options, Closure $callback): void
     {
-        $routeGroup = new RouteGroup($this, $config);
-        $routeGroup->execute($callback);
+        $this->updateGroupStack($options);
+
+        $callback($this);
+        
+        array_pop($this->groupStack);
     }
 
-    /**
-     * Thiết lập các thông tin cấu hình cho route group.
-     *
-     * @param  array  $options
-     * @return void
-     */
-    public function setRouteGroupOptions(array $options = [])
+    public function updateGroupStack(array $options): void
     {
-        if (empty($options)) {
-            $this->routeGroupOptions = [
-                'middleware' => [],
-                'namespace' => '',
-                'prefix' => '',
-                'as' => '',
-            ];
-        }
+        $routeGroup = new RouteGroup($this, $options);
 
-        foreach ($options as $key => $value) {
-            if ($key == 'prefix') {
-                $value = '/'.ltrim($value, '/');
-            } elseif ($key == 'middleware') {
-                if (is_string($value)) {
-                    $value = [$value];
-                }
-
-                $this->routeGroupOptions[$key] = empty($this->routeGroupOptions[$key])
-                    ? $value
-                    : array_merge($this->routeGroupOptions[$key], $value);
-                continue;
-            }
-
-            $this->routeGroupOptions[$key] .= $value;
+        if (empty($this->groupStack)) {
+            $this->groupStack[] = $routeGroup;
+        } else {
+            $lastGroupStack = end($this->groupStack);
+            $this->groupStack[] = $routeGroup->merge($lastGroupStack, $options);
         }
     }
 
     /**
      * Thiết lập cấu hình cho route chạy mặc định theo [Controller]/[action]/[id].
-     *
-     * @param  bool  $default
-     * @return void
      */
-    public function default($default = true)
+    public function default(bool $default = true): void
     {
         $this->routeDefault = $default;
     }
 
     /**
      * Lấy thông tin url bằng tên của route.
-     *
-     * @param  string  $name
-     * @return string
      */
-    public function getUriByName($name)
+    public function getUriByName(string $name): string
     {
         return $this->getRouteByName($name)->getUri();
     }
 
     /**
      * Lấy route hiện tại bằng tên.
-     *
-     * @param  string|null  $name
-     * @return \BrightMoon\Routing\Route
      */
-    public function getRouteByName(?string $name = null)
+    public function getRouteByName(?string $name = null): Route
     {
         $currentRoute = null;
 
@@ -376,10 +284,8 @@ class Router
 
     /**
      * Lấy URL hiện tại không chứa query string.
-     *
-     * @return string
      */
-    public function getCurrentUrl()
+    public function getCurrentUrl(): string
     {
         $uri = preg_replace('/\/+/', '/', '/'.$this->getBaseUri());
         $base = trim(base_url(), '/');
@@ -388,11 +294,9 @@ class Router
     }
 
     /**
-     * Lấy toàn bộ URL hiện tại
-     *
-     * @return string
+     * Lấy toàn bộ URL hiện tại.
      */
-    public function fullPathCurrent()
+    public function fullPathCurrent(): string
     {
         $uri = preg_replace('/\/+/i', '/', ($_SERVER['REQUEST_URI'] ?? ''));
         $base = trim(base_url(), '/');
@@ -402,10 +306,8 @@ class Router
 
     /**
      * Lấy danh sách route đã đăng ký.
-     *
-     * @return array
      */
-    public function getListRouteRegisted()
+    public function getListRouteRegisted(): array
     {
         return $this->routesRegistered;
     }

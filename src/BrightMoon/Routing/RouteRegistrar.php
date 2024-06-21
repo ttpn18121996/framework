@@ -7,38 +7,24 @@ use Closure;
 
 class RouteRegistrar
 {
-    /**
-     * @var array
-     */
-    public $middleware = [];
+    public array $middlewares = [];
 
-    /**
-     * @var string
-     */
-    public $namespace = '';
+    public string $namespace = '';
 
-    /**
-     * @var string
-     */
-    public $prefix = '';
+    public string $prefix = '';
 
-    /**
-     * @var \BrightMoon\Routing\Router
-     */
-    private $router;
-
-    public function __construct(Router $router)
-    {
-        $this->router = $router;
+    public function __construct(
+        protected Router $router,
+    ) {
     }
 
-    public function middleware($middlewares)
+    public function middleware(array|string $middlewares): static
     {
         if (is_string($middlewares)) {
             $middlewares = [$middlewares];
         }
 
-        $this->middleware[] = $middlewares;
+        $this->middlewares[] = array_merge($this->middlewares, $middlewares);
 
         return $this;
     }
@@ -48,15 +34,14 @@ class RouteRegistrar
         $options = [
             'prefix' => $this->prefix,
             'namespace' => $this->namespace,
-            'middleware' => $this->middleware,
+            'middlewares' => $this->middlewares,
         ];
 
         if (is_string($callback)) {
             $this->router->routesRegistered[] = $callback;
-            $this->router->setRouteGroupOptions($options);
+            $this->router->updateGroupStack($options);
         } elseif ($callback instanceof Closure) {
-            $routeGroup = new RouteGroup($this->router, $options);
-            $routeGroup->execute($callback);
+            $this->router->group($options, $callback);
         }
     }
 

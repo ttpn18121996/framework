@@ -76,7 +76,7 @@ class Request
 
         if (
             isset($requestInput['_method'])
-            && in_array($requestInput['_method'], ['PUT', 'PATCH', 'DELETE'])
+            && in_array($requestInput['_method'], ['PUT', 'PATCH', 'DELETE', 'OPTIONS'])
             && Str::upper($this->method) == 'POST'
         ) {
             $this->method = $requestInput['_method'];
@@ -100,10 +100,8 @@ class Request
 
     /**
      * Lấy dữ liệu thiết lập headers cho request.
-     *
-     * @return void
      */
-    private function setDataHeader()
+    private function setDataHeader(): void
     {
         foreach (getallheaders() as $name => $value) {
             $this->headers['header'][$name] = $value;
@@ -124,17 +122,13 @@ class Request
 
     public function setSession()
     {
-        # code...
+        //
     }
 
     /**
      * Lấy một input từ request.
-     *
-     * @param  string  $key
-     * @param  mixed  $default
-     * @return mixed
      */
-    public function input($key, $default = null)
+    public function input(string $key, mixed $default = null): mixed
     {
         $req = $this->all();
 
@@ -147,10 +141,8 @@ class Request
 
     /**
      * Lấy toàn bộ danh sách input submit lên.
-     *
-     * @return array
      */
-    public function all()
+    public function all(): array
     {
         $result = array_merge($this->query, $this->request);
 
@@ -159,12 +151,8 @@ class Request
 
     /**
      * Lấy tham số query url.
-     *
-     * @param  string  $key
-     * @param  mixed  $default
-     * @return array
      */
-    public function query($key = '', $default = null)
+    public function query(string $key = '', mixed $default = null): array
     {
         if (empty($key)) {
             return $this->query;
@@ -198,11 +186,8 @@ class Request
 
     /**
      * Lấy danh sách các thông số của server.
-     *
-     * @param  string|null  $key
-     * @return mixed
      */
-    public function server(?string $key = null)
+    public function server(?string $key = null): mixed
     {
         if (! is_null($key)) {
             $key = Str::upper($key);
@@ -215,11 +200,8 @@ class Request
 
     /**
      * Kiểm tra các giá trị được chỉ định có tồn tại hay không.
-     *
-     * @param  array|string  $keys
-     * @return bool
      */
-    public function has($keys)
+    public function has(array|string $keys): bool
     {
         if (is_string($keys)) {
             return array_key_exists($keys, $this->all());
@@ -236,11 +218,8 @@ class Request
 
     /**
      * Kiểm tra một trong các giá trị được chỉ định có tồn tại hay không.
-     *
-     * @param  array  $keys
-     * @return bool
      */
-    public function hasAny(array $keys)
+    public function hasAny(array $keys): bool
     {
         foreach ($keys as $key) {
             if (array_key_exists($key, $this->all())) {
@@ -253,33 +232,24 @@ class Request
 
     /**
      * Kiểm tra phương thức request.
-     *
-     * @param  string  $method
-     * @return bool
      */
-    public function isMethod($method)
+    public function isMethod(string $method): bool
     {
         return $this->method == $method;
     }
 
     /**
      * Chỉ lấy các input được chỉ định trong request.
-     *
-     * @param  array|string  $keys
-     * @return array
      */
-    public function only($keys)
+    public function only(array|string $keys): array
     {
         return Arr::only($this->all(), $keys);
     }
 
     /**
      * Loại trừ các input được chỉ định khỏi request.
-     *
-     * @param  array|string  $keys
-     * @return array
      */
-    public function except($keys)
+    public function except(array|string $keys): array
     {
         return Arr::except($this->all(), $keys);
     }
@@ -296,12 +266,8 @@ class Request
 
     /**
      * Thiết lập động giá trị cho thuộc tính.
-     *
-     * @param  string  $name
-     * @param  mixed  $value
-     * @return void
      */
-    public function __set($name, $value)
+    public function __set(string $name, $value): void
     {
         if (! isset($this->request[$name])) {
             $this->request[$name] = $value;
@@ -310,11 +276,8 @@ class Request
 
     /**
      * Lấy giá trị các thuộc tính động.
-     *
-     * @param  string  $name
-     * @return mixed
      */
-    public function __get($name)
+    public function __get(string $name): mixed
     {
         return $this->input($name);
     }

@@ -13,45 +13,35 @@ class Route
 {
     /**
      * Mẫu URI mà route sẽ hướng tới.
-     *
-     * @var string
      */
-    public $uri;
+    public string $uri;
 
     /**
      * Phương thức HTTP mà route sẽ hướng tới.
-     *
-     * @var array
      */
-    public $methods;
+    public array $methods;
 
     /**
      * Action mà controller sẽ thực thi.
-     *
-     * @var string|callable
      */
-    public $action;
+    public \Closure|array|string $action;
 
     /**
      * Controller xử lý yêu cầu.
-     *
-     * @var string
      */
-    public $controller;
+    public string $controller;
 
     /**
      * Tên route.
-     *
-     * @var string
      */
-    public $name;
+    public string $name;
 
     /**
      * Namespace của controller.
      *
      * @var string
      */
-    public $namespaceController;
+    public string $namespaceController = '';
 
     /**
      * Các kiểu dữ liệu của tham số truyền vào hàm
@@ -82,12 +72,17 @@ class Route
     private $boundParameters = [];
 
     /**
+     * Các middleware của route.
+     */
+    public array $middlewares = [];
+
+    /**
      * Khởi tạo đối tượng Route.
      *
      * @param  array  $methods
      * @param  string  $uri
      * @param  \Closure|array|string  $action
-     * @return mixed
+     * @return void
      */
     public function __construct($methods, $uri, $action)
     {
@@ -98,20 +93,13 @@ class Route
 
     /**
      * Cấu hình các thông số cho route.
-     *
-     * @param  array  $options
-     * @return void
      */
-    public function configRoute(array $options)
+    public function configRoute(array $options): void
     {
         $this->prefix = $options['prefix'] ?? '';
 
         if (! empty($options['namespace'])) {
-            if (empty($this->namespaceController)) {
-                $this->namespaceController = $options['namespace'];
-            } else {
-                $this->namespaceController .= '\\'.$options['namespace'];
-            }
+            $this->namespace($options['namespace']);
         }
 
         if (isset($options['as'])) {
@@ -121,11 +109,8 @@ class Route
 
     /**
      * Phân tích và lấy action cho route.
-     *
-     * @param  \Closure|array|string  $action
-     * @return \Closure|string
      */
-    private function parseAction($action)
+    private function parseAction(\Closure|array|string $action): \Closure|array|string
     {
         if (is_callable($action)) {
             return $action;
@@ -133,18 +118,15 @@ class Route
             $action = ['uses' => $action];
         }
 
-        $this->name = $action['as'] ?? null;
+        $this->name = $action['as'] ?? '';
         
         return $this->handleAction($action['uses'] ??= $action);
     }
 
     /**
-     * Xử lý action dạng chuỗi
-     *
-     * @param  \Closure|array|string  $action
-     * @return mixed
+     * Xử lý action dạng chuỗi.
      */
-    private function handleAction($action)
+    private function handleAction(\Closure|string $action): \Closure|string
     {
         if (is_callable($action)) {
             return $action;
@@ -163,11 +145,8 @@ class Route
 
     /**
      * Thiết lập tên route.
-     *
-     * @param  string  $name
-     * @return void
      */
-    public function name($name)
+    public function name(string $name): static
     {
         $this->name .= $name;
 
@@ -176,21 +155,16 @@ class Route
 
     /**
      * Lấy tên route.
-     *
-     * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
     /**
      * Thiết lập namespace cho controller.
-     *
-     * @param  string  $namespace
-     * @return $this
      */
-    public function namespace($namespace)
+    public function namespace(string $namespace): static
     {
         $this->namespaceController .= '\\'.$namespace;
         $this->namespaceController .= trim($this->namespaceController, '\\');
@@ -199,13 +173,19 @@ class Route
     }
 
     /**
-     * Bind các tham số cho route, khi nhận được key tương ứng sẽ tự động resolve giá trị.
-     *
-     * @param  string  $key
-     * @param  mixed  $value
-     * @return $this
+     * Thiếp lập các middleware cho route.
      */
-    public function bind($key, $value)
+    public function middleware(string|array $middlewares)
+    {
+        $this->middlewares = array_merge($this->middlewares, (array) $middlewares);
+
+        return $this;
+    }
+
+    /**
+     * Bind các tham số cho route, khi nhận được key tương ứng sẽ tự động resolve giá trị.
+     */
+    public function bind(string $key, mixed $value): static
     {
         $this->boundParameters[$key] = $value;
 
@@ -213,12 +193,9 @@ class Route
     }
 
     /**
-     * So sánh URI với URI của route
-     *
-     * @param  string  $uri
-     * @return bool
+     * So sánh URI với URI của route.
      */
-    public function compare($uri)
+    public function compare(string $uri): bool
     {
         $routeUri = $this->getUri();
         $pattern_regex = preg_replace("/\{([a-zA-Z_]+[a-zA-Z_\-]*?)\}/", "(?P<$1>[\w-]*)", $routeUri);
@@ -235,11 +212,8 @@ class Route
 
     /**
      * Thiết lập tham số.
-     *
-     * @param  array  $matches
-     * @return void
      */
-    private function setParameters(array $matches)
+    private function setParameters(array $matches): void
     {
         foreach ($matches as $key => $value) {
             if (! is_integer($key)) {
@@ -283,15 +257,13 @@ class Route
     /**
      * Thiết lập controller cho route.
      *
-     * @param  string  $controllerName
-     * @return string|null
-     *
      * @throws \BrightMoon\Exceptions\BrightMoonRouteException
      */
-    public function getController()
+    public function getController(): ?string
     {
         if (! is_null($this->controller)) {
             $controllerName = $this->namespaceController.'\\'.$this->controller;
+            
             if(! class_exists($controllerName)) {
                 throw new BrightMoonRouteException("Không tìm thấy controller [{$controllerName}]");
             }
@@ -304,20 +276,16 @@ class Route
 
     /**
      * Lấy URI nguyên mẫu.
-     *
-     * @return string
      */
-    private function getBaseUri()
+    private function getBaseUri(): string
     {
         return ltrim($this->uri, '/');
     }
 
     /**
      * Lấy URI của route.
-     *
-     * @return string
      */
-    public function getUri()
+    public function getUri(): string
     {
         $uri = trim($this->prefix, '/').'/'.$this->getBaseUri();
 
