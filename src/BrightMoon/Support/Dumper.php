@@ -6,33 +6,29 @@ use \ReflectionClass;
 
 class Dumper
 {
-    const ARRAY_TYPE = 'array';
-    const BOOL_TYPE = 'boolean';
-    const FLOAT_DOUBLE_TYPE = 'double';
-    const INTEGER_TYPE = 'integer';
-    const OBJECT_TYPE = 'object';
-    const STRING_TYPE = 'string';
-    const NULL_TYPE = 'NULL';
-    const BASE_TYPE = [
+    public const string ARRAY_TYPE = 'array';
+    public const string BOOL_TYPE = 'boolean';
+    public const string FLOAT_DOUBLE_TYPE = 'double';
+    public const string INTEGER_TYPE = 'integer';
+    public const string OBJECT_TYPE = 'object';
+    public const string STRING_TYPE = 'string';
+    public const string NULL_TYPE = 'NULL';
+    public const array BASE_TYPE = [
         self::BOOL_TYPE, self::FLOAT_DOUBLE_TYPE, self::INTEGER_TYPE, self::STRING_TYPE, self::NULL_TYPE
     ];
 
-    /**
-     * @var string
-     */
-    private $content;
+    private string $content;
 
     /**
      * Xử lý phân tích dữ liệu đưa vào.
-     *
-     * @param  mixed  $arg
-     * @return void
      */
-    public function dump($arg)
+    public function dump(mixed $arg): void
     {
         if (!defined("DUMP_DEBUG_SCRIPT")) {
             define("DUMP_DEBUG_SCRIPT", true);
 
+            $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)[1];
+            echo $backtrace['file'].':'.$backtrace['line'];
             echo $this->getStyle(config('constant.dump.theme'));
             echo $this->getScript();
         }
@@ -70,12 +66,8 @@ class Dumper
 
     /**
      * Lấy nội dung dữ liệu dạng đối tượng.
-     *
-     * @param  object  $obj
-     * @param  int  $level
-     * @return string
      */
-    public function getContentTypeObject($obj, $level = 0)
+    public function getContentTypeObject(object $obj, int $level = 0): string
     {
         $type = get_class($obj);
         $id = spl_object_id($obj);
@@ -100,15 +92,14 @@ class Dumper
 
     /**
      * Lấy nội dung dữ liệu dạng dữ liệu thuần.
-     *
-     * @param  string  $type
-     * @param  int  $length
-     * @param  string  $value
-     * @param  string  $key
-     * @return string
      */
-    private function getContentTypeBase($type, $length, $value, $key = null, $charPoint = ' => ')
-    {
+    private function getContentTypeBase(
+        string $type,
+        int $length,
+        string $value,
+        ?string $key = null,
+        string $charPoint = ' => ',
+    ): string {
         $content = '<span class="dumper-type">'.$type.'('.$length.') </span>
                 <span class="dumper-value-'.$type.'">'.$value.'</span>';
 
@@ -128,13 +119,8 @@ class Dumper
 
     /**
      * Lấy nội dung dữ liệu dạng mảng.
-     *
-     * @param  array  $data
-     * @param  int  $lavel
-     * @param  string  $type
-     * @return string
      */
-    private function getContentTypeArray(array $data, $level = 0, $type = 'array', $objectId = 0)
+    private function getContentTypeArray(array $data, int $level = 0, string $type = 'array', int $objectId = 0): string
     {
         $length = count($data);
         $charPoint = $type != 'array' ? ': ' : ' => ';
@@ -153,7 +139,7 @@ class Dumper
         $rs .= '<span class="dumper-'.($type != 'array' ? 'value-obj' : 'type').' pointer">'.$type.
             ($type == 'array' ? '('.$length.')' : '&nbsp;{...}[#'.$objectId.']').'&nbsp;'.
             ($length > 0
-                ? '<span class="dumper-toggle" data-rotate="'.($level == 0 ? '-90' : '0').'" style="transform: rotate('.($level == 0 ? '-90' : '0').'deg);"></span>'
+                ? '<span class="dumper-toggle" data-rotate="'.($level == 0 ? '90' : '0').'" style="transform: rotate('.($level == 0 ? '90' : '0').'deg);"></span>'
                 : '').'</span>
             <div class="dumper-value-arr-obj '.($level == 0 ? '' : 'dnone').'">';
         if ($length) {
@@ -180,13 +166,8 @@ class Dumper
 
     /**
      * Lấy nội dung dự liệu các phần tử mảng.
-     *
-     * @param  string  $key
-     * @param  mixed  $value
-     * @param  int  $level
-     * @return string
      */
-    private function getContentItemArray($key, $value, $level, $charPoint = ' => ')
+    private function getContentItemArray(string $key, mixed $value, int $level, string $charPoint = ' => '): string
     {
         $type = gettype($value);
         $blank = '';
@@ -212,10 +193,8 @@ class Dumper
 
     /**
      * Thiết lập nhúng css.
-     *
-     * @return string
      */
-    private function getStyle($theme = 'dark')
+    private function getStyle(string $theme = 'dark'): string
     {
         if ($theme == 'dark') {
             return '<style>
@@ -225,8 +204,8 @@ class Dumper
             .dumper-value-string{color: #15dd15;}.dumper-value-integer{color: #007bff;}.dumper-value-obj{color: #ffc107;}
             .dumper-value-double{color: #ff11ff;}.dumper-value-boolean{color: #dc3545;}.dumper-key{color: #fefefe;}
             .dumper-toggle{user-select: none;width: 1px;height: 1px;display: inline-block;transition: all 0.25s;
-                border-top:5px solid transparent;border-left:5px solid transparent;
-                border-bottom:5px solid transparent;border-right:5px solid #fefefe;}
+                border-top:5px solid transparent;border-right:5px solid transparent;
+                border-bottom:5px solid transparent;border-left:5px solid #fefefe;}
             .dumper-value-arr-obj{transition: all 0.5s ease-in-out;}
             </style>';
         }
@@ -237,17 +216,17 @@ class Dumper
             .mb-2{margin-bottom: 0.5rem;}.mt-2{margin-top: 0.5rem;}.dumper-type{color: #e87c08;user-select: none;}
             .dumper-value-string{color: #28a745;}.dumper-value-integer{color: #007bff;}.dumper-value-obj{color: #e6b218;}
             .dumper-value-double{color: #ff11ff;}.dumper-value-boolean{color: #dc3545;}.dumper-key{color: #0e0e0e;}
-            .dumper-toggle{user-select: none;border-top:5px solid transparent;border-left:5px solid transparent;border-bottom:5px solid transparent;border-right:5px solid #0e0e0e;width: 1px;height: 1px;display: inline-block;}
+            .dumper-toggle{user-select: none;width: 1px;height: 1px;display: inline-block;transition: all 0.25s;
+                border-top:5px solid transparent;border-right:5px solid transparent;
+                border-bottom:5px solid transparent;border-left:5px solid #0e0e0e;}
             .dumper-value-arr-obj{transition: all 0.5s ease-in-out;}
             </style>';
     }
 
     /**
      * Thiết lập nhúng css và javascript.
-     *
-     * @return string
      */
-    private function getScript()
+    private function getScript(): string
     {
         // Arial, Helvetica, sans-serif
         return '<script async defer>
@@ -255,7 +234,7 @@ class Dumper
                 let rotate;
                 const dumperValue = parent.parentNode.querySelector(".dumper-value-arr-obj");
                 if (child.dataset.rotate === "0") {
-                    rotate = "-90";
+                    rotate = "90";
                     child.dataset.rotate = rotate;
                     dumperValue.classList.remove("dnone");
                 } else {
