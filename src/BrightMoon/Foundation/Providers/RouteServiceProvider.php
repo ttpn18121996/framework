@@ -7,7 +7,9 @@ use BrightMoon\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
-    protected $namespace;
+    protected ?string $namespace = null;
+
+    protected $routes;
 
     /**
      * Register any application services.
@@ -43,7 +45,5 @@ class RouteServiceProvider extends ServiceProvider
                 require $route;
             }
         }
-
-        Route::run($this->app->make(Request::class));
     }
 }

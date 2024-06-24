@@ -5,30 +5,29 @@ namespace BrightMoon\Foundation;
 use BrightMoon\Support\Arr;
 use BrightMoon\Foundation\Providers\AppServiceProvider;
 use BrightMoon\Foundation\Providers\RouteServiceProvider;
+use BrightMoon\Foundation\Providers\ServiceProvider;
+use BrightMoon\Http\Request;
+use BrightMoon\Support\Facades\Route;
 
 class Application extends Container
 {
     public const VERSION = '1.1.1';
 
-    protected $basePath;
+    protected ?string $basePath;
 
     /**
      * @var \BrightMoon\Foundation\Providers\ServiceProvider[]
      */
-    protected $serviceProviders = [];
+    protected array $serviceProviders = [];
 
-    /**
-     * @var string
-     */
-    protected $namespace;
+    protected ?string $namespace = null;
+
+    protected array $config = [];
 
     /**
      * Khởi tạo đối tượng Application.
-     *
-     * @param  string|null  $basePath
-     * @return void
      */
-    public function __construct($basePath = null)
+    public function __construct(?string $basePath = null)
     {
         if ($basePath) {
             $this->basePath = $basePath;
@@ -41,26 +40,21 @@ class Application extends Container
 
     /**
      * Lấy phiên bản hiện tại của framework.
-     *
-     * @return string
      */
-    public function version()
+    public function version(): string
     {
         return static::VERSION;
     }
 
     /**
      * Khai báo khởi chạy các thiết lập mặc định cho provider.
-     *
-     * @return void
      */
-    public function registerBaseBindings()
+    public function registerBaseBindings(): void
     {
         static::setInstance($this);
 
-        $appConfig = Config::getInstance()->getConfig('app');
-        $this->instances = $appConfig['instances'] ?? [];
-        $this->serviceProviders = $appConfig['providers'] ?? [];
+        $this->config = Config::getInstance()->getConfig('app');
+        $this->instances = $this->config['instances'] ?? [];
         $this->aliases = [
             'hash' => \BrightMoon\Hashing\Hash::class,
             'db' => \BrightMoon\Database\DatabaseManager::class,
@@ -73,22 +67,33 @@ class Application extends Container
 
     /**
      * Khai báo khởi chạy các ServiceProvider mặc định.
-     *
-     * @return mixed
      */
-    public function registerBaseServiceProviders()
+    public function registerBaseServiceProviders(): void
     {
-        $this->register(new AppServiceProvider($this));
-        $this->register(new RouteServiceProvider($this));
+        $this->serviceProviders[] = $this->register(new AppServiceProvider($this));
+        $this->serviceProviders[] = $this->register(new RouteServiceProvider($this));
+
+        if (file_exists($this->basePath('bootstrap/providers.php'))) {
+            $providers = require $this->basePath('bootstrap/providers.php');
+        } else {
+            $providers = $this->config['providers'] ?? [];
+        }
+
+        $this->serviceProviders = array_merge($this->serviceProviders, array_map(function (ServiceProvider|string $serviceProvider) {
+            if (is_string($serviceProvider)) {
+                return $this->register($serviceProvider);
+            }
+
+            $serviceProvider->register();
+
+            return $serviceProvider;
+        }, $providers ?? []));
     }
 
     /**
      * Đăng ký provider.
-     *
-     * @param  \BrightMoon\Foundation\Providers\ServiceProvider|string  $provider
-     * @return \BrightMoon\Foundation\Providers\ServiceProvider
      */
-    public function register($provider)
+    public function register(ServiceProvider|string $provider): ServiceProvider
     {
         if ($registed = $this->getProvider($provider)) {
             return $registed;
@@ -105,33 +110,24 @@ class Application extends Container
 
     /**
      * Xử lý khởi tạo provider.
-     *
-     * @param  string $provider
-     * @return \BrightMoon\Foundation\Providers\ServiceProvider
      */
-    public function resolveProvider($provider)
+    public function resolveProvider(string $provider): ServiceProvider
     {
         return new $provider($this);
     }
 
     /**
      * Lấy provider đã đăng ký.
-     *
-     * @param  \BrightMoon\Foundation\Providers\ServiceProvider|string  $provider
-     * @return \BrightMoon\Foundation\Providers\ServiceProvider|null
      */
-    public function getProvider($provider)
+    public function getProvider(ServiceProvider|string $provider): ?ServiceProvider
     {
         return array_values($this->getProviders($provider))[0] ?? null;
     }
 
     /**
      * Lấy danh sách các provider liên quan.
-     *
-     * @param  \BrightMoon\Foundation\Providers\ServiceProvider|string  $provider
-     * @return array
      */
-    public function getProviders($provider)
+    public function getProviders(ServiceProvider|string $provider): array
     {
         $name = is_string($provider) ? $provider : get_class($provider);
 
@@ -142,10 +138,8 @@ class Application extends Container
 
     /**
      * Đăng ký các tên định danh (alias) cho các class.
-     *
-     * @return mixed
      */
-    public function registerCoreContainerAliases()
+    public function registerCoreContainerAliases(): void
     {
         foreach (Config::getInstance()->getConfig('app')['aliases'] as $alias => $class) {
             class_alias($class, $alias);
@@ -154,10 +148,8 @@ class Application extends Container
 
     /**
      * Chạy lần đầu.
-     *
-     * @return void
      */
-    public function init()
+    public function run(): void
     {
         set_error_handler(function ($errno, $errstr, $errfile, $errline) {
             return (new \BrightMoon\Exceptions\Handler(new \BrightMoon\Exceptions\BrightMoonException($errstr, $errno)))
@@ -169,28 +161,26 @@ class Application extends Container
 
         date_default_timezone_set(config('app.timezone'));
 
-        foreach ($this->serviceProviders as $key => $serviceProvider) {
-            if (is_string($serviceProvider)) {
-                $serviceProvider = $this->register($serviceProvider);
-            }
-
+        foreach ($this->serviceProviders as $serviceProvider) {
             if (method_exists($serviceProvider, 'boot')) {
                 $serviceProvider->boot();
             }
         }
+
+        Route::run($this->make(Request::class));
     }
 
     /**
      * Lấy đường dẫn gốc.
-     *
-     * @param  string  $path
-     * @return string
      */
-    public function basePath($path = '')
+    public function basePath(?string $path = null): string
     {
-        return $this->basePath.($path ? DIRECTORY_SEPARATOR.$path : $path);
+        return $this->basePath.($path ? DIRECTORY_SEPARATOR.$path : '');
     }
 
+    /**
+     * Lấy namespace của app.
+     */
     public function getNamespace()
     {
         if (! is_null($this->namespace)) {
@@ -208,5 +198,14 @@ class Application extends Container
         }
 
         throw new RuntimeException('Không thể lấy được namespace của app.');
+    }
+
+    /**
+     * Chạy lần đầu.
+     * @deprecated Gọi hàm run() để thay thế, init() sẽ bị gỡ bỏ
+     */
+    public function init(): void
+    {
+        $this->run();
     }
 }

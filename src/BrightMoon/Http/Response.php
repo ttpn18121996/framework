@@ -5,7 +5,6 @@ namespace BrightMoon\Http;
 use BrightMoon\Support\Facades\Route;
 use BrightMoon\Support\Str;
 use InvalidArgumentException;
-use stdClass;
 
 class Response
 {
