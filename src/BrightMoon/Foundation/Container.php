@@ -311,7 +311,7 @@ class Container
         } else {
             [$class, $action] = is_string($callback) ? explode($callback, '@') : $callback;
 
-            $instance = $this->make($class);
+            $instance = is_string($class) ? $this->make($class) : $class;
 
             $method = new ReflectionMethod($instance, $action);
             $action = [$instance, $action];
