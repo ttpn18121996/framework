@@ -137,11 +137,18 @@ class Dumper
         }
         
         $rs .= '<span class="dumper-'.($type != 'array' ? 'value-obj' : 'type').' pointer">'.$type.
-            ($type == 'array' ? '('.$length.')' : '&nbsp;{...}[#'.$objectId.']').'&nbsp;'.
-            ($length > 0
-                ? '<span class="dumper-toggle" data-rotate="'.($level == 0 ? '90' : '0').'" style="transform: rotate('.($level == 0 ? '90' : '0').'deg);"></span>'
-                : '').'</span>
-            <div class="dumper-value-arr-obj '.($level == 0 ? '' : 'dnone').'">';
+            ($type == 'array' ? '('.$length.')' : '&nbsp;{...}[#'.$objectId.']').'&nbsp;';
+        
+        if ($length) {
+            if ($level == 9) {
+                $rs .= '<span class="dumper-value-obj">{...}</span>';
+            } else {
+                $rs .= '<span class="dumper-toggle" data-rotate="'.($level == 0 ? '90' : '0').'" style="transform: rotate('.($level == 0 ? '90' : '0').'deg);"></span>';
+            }
+        }
+
+        $rs .= '</span><div class="dumper-value-arr-obj '.($level == 0 ? '' : 'dnone').'">';
+
         if ($length) {
             $level++;
             foreach ($data as $key => $value) {
@@ -169,6 +176,10 @@ class Dumper
      */
     private function getContentItemArray(string $key, mixed $value, int $level, string $charPoint = ' => '): string
     {
+        if ($level == 10) {
+            return '';
+        }
+
         $type = gettype($value);
         $blank = '';
         for ($i = 0; $i < $level; $i++) {
