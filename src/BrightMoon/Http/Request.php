@@ -2,7 +2,6 @@
 
 namespace BrightMoon\Http;
 
-use Closure;
 use BrightMoon\Support\Arr;
 use BrightMoon\Support\Str;
 
@@ -187,12 +186,12 @@ class Request
     /**
      * Lấy danh sách các thông số của server.
      */
-    public function server(?string $key = null): mixed
+    public function server(?string $key = null, $default = null): mixed
     {
         if (! is_null($key)) {
             $key = Str::upper($key);
 
-            return $this->server[$key];
+            return Arr::get($this->server, $key, $default);
         }
 
         return $this->server;

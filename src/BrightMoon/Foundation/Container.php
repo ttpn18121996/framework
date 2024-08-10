@@ -5,6 +5,7 @@ namespace BrightMoon\Foundation;
 use Closure;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionFunction;
 use ReflectionMethod;
 use ReflectionParameter;
 use RuntimeException;
@@ -304,7 +305,7 @@ class Container
      */
     public function call(string|array|Closure $callback, array $parameterOverride = [])
     {
-        if (! $callback instanceof Closure) {
+        if ($callback instanceof Closure) {
             $method = new ReflectionFunction($callback);
             $action = $callback;
         } else {
