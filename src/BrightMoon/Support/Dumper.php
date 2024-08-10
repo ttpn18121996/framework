@@ -17,7 +17,14 @@ class Dumper
         self::BOOL_TYPE, self::FLOAT_DOUBLE_TYPE, self::INTEGER_TYPE, self::STRING_TYPE, self::NULL_TYPE
     ];
 
-    private string $content;
+    private string $content = '';
+
+    private int $limitLevel;
+
+    public function __construct()
+    {
+        $this->limitLevel = config('constant.dump.limit_level', 10);
+    }
 
     /**
      * Xử lý phân tích dữ liệu đưa vào.
@@ -140,7 +147,7 @@ class Dumper
             ($type == 'array' ? '('.$length.')' : '&nbsp;{...}[#'.$objectId.']').'&nbsp;';
         
         if ($length) {
-            if ($level == 9) {
+            if ($level == $this->limitLevel - 1) {
                 $rs .= '<span class="dumper-value-obj">{...}</span>';
             } else {
                 $rs .= '<span class="dumper-toggle" data-rotate="'.($level == 0 ? '90' : '0').'" style="transform: rotate('.($level == 0 ? '90' : '0').'deg);"></span>';
@@ -176,7 +183,7 @@ class Dumper
      */
     private function getContentItemArray(string $key, mixed $value, int $level, string $charPoint = ' => '): string
     {
-        if ($level == 10) {
+        if ($level == $this->limitLevel) {
             return '';
         }
 
