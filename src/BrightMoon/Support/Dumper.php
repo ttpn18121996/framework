@@ -17,7 +17,14 @@ class Dumper
         self::BOOL_TYPE, self::FLOAT_DOUBLE_TYPE, self::INTEGER_TYPE, self::STRING_TYPE, self::NULL_TYPE
     ];
 
-    private string $content;
+    private string $content = '';
+
+    private int $limitLevel;
+
+    public function __construct()
+    {
+        $this->limitLevel = config('constant.dump.limit_level', 10);
+    }
 
     /**
      * Xử lý phân tích dữ liệu đưa vào.
@@ -137,11 +144,18 @@ class Dumper
         }
         
         $rs .= '<span class="dumper-'.($type != 'array' ? 'value-obj' : 'type').' pointer">'.$type.
-            ($type == 'array' ? '('.$length.')' : '&nbsp;{...}[#'.$objectId.']').'&nbsp;'.
-            ($length > 0
-                ? '<span class="dumper-toggle" data-rotate="'.($level == 0 ? '90' : '0').'" style="transform: rotate('.($level == 0 ? '90' : '0').'deg);"></span>'
-                : '').'</span>
-            <div class="dumper-value-arr-obj '.($level == 0 ? '' : 'dnone').'">';
+            ($type == 'array' ? '('.$length.')' : '&nbsp;{...}[#'.$objectId.']').'&nbsp;';
+        
+        if ($length) {
+            if ($level == $this->limitLevel - 1) {
+                $rs .= '<span class="dumper-value-obj">{...}</span>';
+            } else {
+                $rs .= '<span class="dumper-toggle" data-rotate="'.($level == 0 ? '90' : '0').'" style="transform: rotate('.($level == 0 ? '90' : '0').'deg);"></span>';
+            }
+        }
+
+        $rs .= '</span><div class="dumper-value-arr-obj '.($level == 0 ? '' : 'dnone').'">';
+
         if ($length) {
             $level++;
             foreach ($data as $key => $value) {
@@ -169,6 +183,10 @@ class Dumper
      */
     private function getContentItemArray(string $key, mixed $value, int $level, string $charPoint = ' => '): string
     {
+        if ($level == $this->limitLevel) {
+            return '';
+        }
+
         $type = gettype($value);
         $blank = '';
         for ($i = 0; $i < $level; $i++) {

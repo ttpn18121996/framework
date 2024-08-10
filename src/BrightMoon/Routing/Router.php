@@ -106,9 +106,12 @@ class Router
     public function addRoute(array|string $methods, string $uri, \Closure|array|string|callable $action): Route
     {
         $route = new Route($methods, $uri, $action);
-        $routeGroupOptions = end($this->groupStack);
-        $route->configRoute($routeGroupOptions);
         
+        if (count($this->groupStack)) {
+            $routeGroupOptions = end($this->groupStack);
+            $route->configRoute($routeGroupOptions);
+        }
+
         foreach ($methods as $method) {
             $this->routes[$method][] = $route;
         }

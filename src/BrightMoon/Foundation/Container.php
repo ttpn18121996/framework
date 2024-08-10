@@ -5,6 +5,7 @@ namespace BrightMoon\Foundation;
 use Closure;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionFunction;
 use ReflectionMethod;
 use ReflectionParameter;
 use RuntimeException;
@@ -286,19 +287,39 @@ class Container
     /**
      * Thực thi phương thức của một class.
      *
-     * @param  array|string  $callback
+     * @param  array|string|Closure  $callback
      * @param  array  $parameterOverride
      * @return mixed
      */
     public function action($callback, array $parameterOverride = [])
     {
-        list($class, $action) = is_string($callback) ? explode($callback, '@') : $callback;
+        return $this->call($callback, $parameterOverride);
+    }
 
-        $instance = $this->make($class);
-        $method = new ReflectionMethod($instance, $action);
+    /**
+     * Thực thi phương thức của một class.
+     *
+     * @param  array|string|Closure  $callback
+     * @param  array  $parameterOverride
+     * @return mixed
+     */
+    public function call(string|array|Closure $callback, array $parameterOverride = [])
+    {
+        if ($callback instanceof Closure) {
+            $method = new ReflectionFunction($callback);
+            $action = $callback;
+        } else {
+            [$class, $action] = is_string($callback) ? explode($callback, '@') : $callback;
+
+            $instance = is_string($class) ? $this->make($class) : $class;
+
+            $method = new ReflectionMethod($instance, $action);
+            $action = [$instance, $action];
+        }
+
         $parameters = $this->resolveParameters($method->getParameters(), $parameterOverride);
 
-        return call_user_func_array([$instance, $action], $parameters);
+        return call_user_func_array($action, $parameters);
     }
 
     /**
